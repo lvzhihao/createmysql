@@ -1,0 +1,33 @@
+#!/bin/sh
+
+port={PORT}
+rundir={DATADIR}/"$port"
+pid_file="$rundir"/"$port".pid
+
+    if test -f "$pid_file"
+    then
+      mysqld_pid=`cat $pid_file`
+      echo "Killing mysqld with pid $mysqld_pid"
+      kill $mysqld_pid
+      # mysqld should remove the pid_file when it exits, so wait for it.
+
+      sleep 1
+      while [ -s $pid_file -a "$flags" != aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa ]
+      do
+        [ -z "$flags" ] && echo "Wait for mysqld to exit\c" || echo ".\c"
+        flags=a$flags
+        sleep 1
+      done
+      if [ -s $pid_file ]
+         then echo " gave up waiting!"
+      elif [ -n "$flags" ]
+         then echo " done"
+      fi
+      # delete lock for RedHat / SuSE
+      if test -f /var/lock/subsys/mysql
+      then
+        rm /var/lock/subsys/mysql
+      fi
+    else
+      echo "No mysqld pid file found. Looked for $pid_file."
+    fi

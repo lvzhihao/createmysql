@@ -1,0 +1,28 @@
+[client]
+port    = {PORT}
+socket  = {DATADIR}/{PORT}/mysql.sock
+default-character-set = utf8
+
+[mysqld]
+user    = {USER}
+port    = {PORT}
+socket  = {DATADIR}/{PORT}/mysql.sock
+
+old_passwords=1
+
+server-id={SLAVE_ID}
+master-host={MASTER_HOST}
+master-port={PORT}
+master-user={SLAVE_USER}
+master-password={SLAVE_PASS}
+
+log-bin={DATADIR}/{PORT}/binlog/mysql-bin
+relay-log={DATADIR}/{PORT}/relaylog/mysql-relay
+
+[mysqld_safe]
+log-error={DATADIR}/{PORT}/log/mysqld.log
+pid-file={DATADIR}/{PORT}/mysqld.pid
+
+[mysqldump]
+quick
+max_allowed_packet = 16M

@@ -1,0 +1,22 @@
+[client]
+port    = {PORT}
+socket  = {DATADIR}/{PORT}/mysql.sock
+default-character-set = utf8
+
+[mysqld]
+user    = {USER}
+port    = {PORT}
+socket  = {DATADIR}/{PORT}/mysql.sock
+
+old_passwords=1
+
+server-id=1
+log-bin={DATADIR}/{PORT}/binlog/mysql-bin
+
+[mysqld_safe]
+log-error={DATADIR}/{PORT}/log/mysqld.log
+pid-file={DATADIR}/{PORT}/mysqld.pid
+
+[mysqldump]
+quick
+max_allowed_packet = 16M

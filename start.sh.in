@@ -1,0 +1,8 @@
+#!/bin/sh
+
+port={PORT}
+rundir={DATADIR}/"$port"
+echo "$rundir"
+{MySQLD_SAFE} --defaults-file="$rundir"/my.cnf --port="$port" --user={USER} --datadir="$rundir"/data --pid-file="$rundir"/"$port".pid --socket="$rundir"/mysql.sock --log-error="$rundir"/log/error.log &
+
+echo "done"

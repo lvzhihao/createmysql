@@ -1,0 +1,26 @@
+bindir="{BINDIR}"
+port={PORT}
+datadir="{DATADIR}"
+user="{USER}"
+
+if [ -z $bindir ]; then
+        echo "miss bindir, please make clean";
+        exit 0;
+fi
+
+if [ -z $port ]; then
+	echo "miss port, please make clean";
+	exit 0;
+fi
+
+if [ -z $datadir ]; then
+        echo "miss datadir, please make clean";
+        exit 0;
+fi
+
+if [ -z $user ]; then
+        echo "miss user, please make clean";
+        exit 0;
+fi
+
+echo "include.sh created ok";

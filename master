@@ -1,0 +1,45 @@
+#!/bin/bash
+
+. ./include.sh
+
+create(){
+
+    mkdir ./m
+    (cat master.cnf.in | sed "s/{PORT}/${port}/g" | sed "s/{USER}/${user}/g" | sed "s|{DATADIR}|${datadir}|g") > ./m/my.cnf
+    (cat start.sh.in | sed "s/{PORT}/${port}/g" | sed "s/{USER}/${user}/g" | sed "s|{DATADIR}|${datadir}|g" | sed "s|{MySQLD_SAFE}|${bindir}/mysqld_safe|g") > ./m/start.sh
+    (cat stop.sh.in | sed "s/{PORT}/${port}/g" | sed "s|{DATADIR}|${datadir}|g") > ./m/stop.sh
+
+    chmod a+x ./m/start.sh
+    chmod a+x ./m/stop.sh
+
+    mkdir ./m/binlog
+    mkdir ./m/data
+    mkdir ./m/log
+
+    ${bindir}/mysql_install_db --datadir=./m/data --user=root
+
+    chown mysql:mysql ./m -R
+
+    echo "master created in ./m"
+
+}
+
+setup(){
+    mkdir -p ${datadir}/${port}
+    cp -r ./m/* ${datadir}/${port}
+    chown ${user}:${user} ${datadir}/${port} -R
+  
+    echo "master database isntalled ${datadir}/${port}"
+}
+
+case "$1" in
+  create)
+    create
+    ;;
+  setup)
+    setup
+    ;;
+  *)
+    echo $"Usage: $0 {create|setup}"
+    exit 1
+esac

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+. ./include.sh
+
+create(){
+
+    mkdir ./s
+
+    (cat slave.cnf.in | sed "s/{PORT}/${port}/g" | sed "s/{USER}/${user}/g" | sed "s|{DATADIR}|${datadir}|g") > ./s/my.cnf
+    (cat start.sh.in | sed "s/{PORT}/${port}/g" | sed "s/{USER}/${user}/g" | sed "s|{DATADIR}|${datadir}|g" | sed "s|{MySQLD_SAFE}|${bindir}/mysqld_safe|g") > ./s/start.sh
+    (cat stop.sh.in | sed "s/{PORT}/${port}/g" | sed "s|{DATADIR}|${datadir}|g") > ./s/stop.sh
+
+    chmod a+x ./s/start.sh
+    chmod a+x ./s/stop.sh
+	
+    mkdir ./s/binlog
+    mkdir ./s/data
+    mkdir ./s/log
+    mkdir ./s/relaylog
+
+    cp -r ./m/data/* ./s/data/
+
+    chown mysql:mysql ./s -R
+
+    echo "master created in ./s"
+
+}
+
+setup(){
+    echo -n "Please input Master IP: "
+    read master_host
+    echo "Master IP: "${master_host}
+
+    echo -n "Please input Slave Id:  "
+    read slave_id
+    echo "Slave Id: "${slave_id}
+
+    echo -n "Please input Slave IP:  "
+    read slave_ip
+    echo "Slave IP: "${slave_ip}
+    
+    echo -n "Please input Slave User: "
+    read slave_user
+    echo "Slave User: "${slave_user}
+ 
+    echo -n "Please input Slave Password: "
+    read slave_pass
+    echo "Slave Password: "${slave_pass}  
+
+    (cat ./s/my.cnf | sed "s/{SLAVE_ID}/${slave_id}/g" | sed "s/{MASTER_HOST}/${master_host}/g" | sed "s/{SLAVE_USER}/${slave_user}/g" | sed "s|{SLAVE_PASS}|${slave_pass}|g") > ./s/my.cnf.bak
+    
+    mv -f ./s/my.cnf.bak ./s/my.cnf
+    
+    ${bindir}/mysql -h 127.0.0.1 -P ${port} <<EOF
+GRANT REPLICATION SLAVE ON *.* TO '${slave_user}'@'${slave_ip}' IDENTIFIED BY '${slave_pass}';
+flush privileges;
+quit
+EOF
+    echo "slave ${slave_ip} installed, Please scp ./s to ${slave_ip}:${datadir}/${port}"
+}
+
+case "$1" in
+  create)
+    create
+    ;;
+  setup)
+    setup
+    ;;
+  *)
+    echo $"Usage: $0 {create|setup}"
+    exit 1
+esac
