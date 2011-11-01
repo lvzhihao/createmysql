@@ -16,7 +16,7 @@ create(){
     mkdir ./m/data
     mkdir ./m/log
 
-    ${bindir}/mysql_install_db --datadir=./m/data --user=root
+    ${bindir}/../scripts/mysql_install_db --datadir=./m/data --user=${user} --basedir=${bindir}/../
 
     chown mysql:mysql ./m -R
 
